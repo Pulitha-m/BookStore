@@ -34,7 +34,10 @@ public class Book {
 
     @Lob
     @Column(name = "book_image", columnDefinition = "LONGBLOB")
-    private byte[] image;
+    private byte[] image;  // This stores the original image in byte array form
+
+    @Transient
+    private String imageBase64;  // This stores the base64-encoded image
 
     private Integer stockQuantity; // Renamed for clarity
 }
