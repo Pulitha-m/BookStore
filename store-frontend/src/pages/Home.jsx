@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const [books, setBooks] = useState([]);
@@ -12,6 +13,11 @@ export default function Home() {
     const result = await axios.get("http://localhost:8080/books");
     console.log(result.data);
     setBooks(result.data);
+  };
+
+  const deleteBook = async (bookId) => {
+    await axios.delete(`http://localhost:8080/books/deleteBook/${bookId}`);
+    loadBooks();
   };
 
   return (
@@ -55,8 +61,24 @@ export default function Home() {
                   />
                 </td>
                 <td>
-                  <button className="btn btn-primary btn-sm me-2">Edit</button>
-                  <button className="btn btn-danger btn-sm">Delete</button>
+                  <Link
+                    className="btn btn-primary btn-sm me-2"
+                    to={`/editbook/${book.bookId}`}
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => deleteBook(book.bookId)}
+                  >
+                    Delete
+                  </button>
+                  <Link
+                    className="btn btn-primary btn-sm me-2 mx-2"
+                    to={`/viewbook/${book.bookId}`}
+                  >
+                    View
+                  </Link>
                 </td>
               </tr>
             ))}
