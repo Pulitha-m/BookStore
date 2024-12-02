@@ -99,4 +99,15 @@ public class BookController {
         return savedBook != null ? ResponseEntity.ok(savedBook) : ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("deleteBook/{bookId}")
+    public ResponseEntity<String> deleteBook(@PathVariable Long bookId) {
+        String responseMessage = bookService.deleteBookById(bookId);
+
+        if (responseMessage.contains("success")) {
+            return ResponseEntity.ok(responseMessage); // Return 200 OK with success message
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMessage); // Return 404 Not Found with error message
+        }
+    }
+
 }
