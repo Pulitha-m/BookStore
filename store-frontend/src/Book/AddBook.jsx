@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function AddBook() {
   let navigate = useNavigate();
@@ -208,6 +208,9 @@ export default function AddBook() {
             <button type="submit" className="btn btn-primary">
               Add Book
             </button>
+            <Link className="btn btn-danger mx-2" to="/">
+              Cancel
+            </Link>
           </form>
         </div>
       </div>
