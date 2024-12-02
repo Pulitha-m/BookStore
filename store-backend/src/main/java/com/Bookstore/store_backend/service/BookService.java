@@ -4,6 +4,8 @@ import com.Bookstore.store_backend.entity.Book;
 import com.Bookstore.store_backend.repository.BookRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -92,4 +94,16 @@ public class BookService {
             return null;
         }
     }
+
+
+
+    public String deleteBookById(Long bookId){
+        if(!bookRepo.existsById(bookId)){
+            return "Book with id "+bookId +" does not exist";
+        }
+
+        bookRepo.deleteById(bookId);
+        return "Book with id "+bookId+ " has been deleted success";
+    }
+
 }
