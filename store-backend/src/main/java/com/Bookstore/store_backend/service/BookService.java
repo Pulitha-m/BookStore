@@ -1,9 +1,7 @@
 package com.Bookstore.store_backend.service;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.Bookstore.store_backend.entity.Book;
 import com.Bookstore.store_backend.repository.BookRepo;
-import com.Bookstore.store_backend.util.bookImageUtils;  // Import the ImageUtils class
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,57 +17,78 @@ public class BookService {
     @Autowired
     private BookRepo bookRepo;
 
-    // Service method to save a new book with a compressed image
+    // Save a new book with an image
     public Book saveBook(Book book, MultipartFile imageFile) throws IOException {
         if (imageFile != null && !imageFile.isEmpty()) {
-            // Get the image as a byte array
             byte[] imageBytes = imageFile.getBytes();
-
-            // Print original image size
             System.out.println("Original Image Size: " + imageBytes.length + " bytes");
-
-            // Set the original image in the book entity (without compression)
             book.setImage(imageBytes);
         }
-
-        // Print the book details (excluding the image)
         System.out.println("Saving book: " + book.getTitle() + " by " + book.getAuthor());
-
-        // Save the book (with original image) to the repository (database)
-        return bookRepo.save(book);  // Save the book to the repository (database)
+        return bookRepo.save(book);
     }
 
-
+    // Retrieve all books
     public List<Book> getAllBooks() {
-        List<Book> books = bookRepo.findAll();  // This should return all books
-        System.out.println("Total books retrieved: " + books.size()); // Check how many books are fetched
+        List<Book> books = bookRepo.findAll();
+        System.out.println("Total books retrieved: " + books.size());
 
-        // Convert image bytes to Base64 string for each book
-        for (Book book : books) {
+        // Convert image bytes to Base64 for frontend
+        books.forEach(book -> {
             if (book.getImage() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(book.getImage());
-                book.setImageBase64(base64Image);  // Set the base64 string for frontend
+                book.setImageBase64(Base64.getEncoder().encodeToString(book.getImage()));
             }
-        }
-
+        });
         return books;
     }
 
-
+    // Retrieve a single book by ID
     public Book getBookById(Long bookId) {
         Optional<Book> optionalBook = bookRepo.findById(bookId);
-
         if (optionalBook.isPresent()) {
             Book book = optionalBook.get();
             System.out.println("Book retrieved: " + book.getTitle());
-
             if (book.getImage() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(book.getImage());
-                book.setImageBase64(base64Image);
+                book.setImageBase64(Base64.getEncoder().encodeToString(book.getImage()));
             }
-
             return book;
         } else {
+            System.out.println("Book not found with ID: " + bookId);
+            return null;
+        }
+    }
+
+    public Book updateBook(Book newBook, Long id, MultipartFile imageFile) throws IOException {
+        Optional<Book> optionalBook = bookRepo.findById(id);
+        if (optionalBook.isPresent()) {
+            Book existingBook = optionalBook.get();
+
+            // Update the book's fields if they are not null
+            existingBook.setTitle(newBook.getTitle() != null ? newBook.getTitle() : existingBook.getTitle());
+            existingBook.setAuthor(newBook.getAuthor() != null ? newBook.getAuthor() : existingBook.getAuthor());
+            existingBook.setDescription(newBook.getDescription() != null ? newBook.getDescription() : existingBook.getDescription());
+            existingBook.setPrice(newBook.getPrice() != null ? newBook.getPrice() : existingBook.getPrice());
+            existingBook.setCategory(newBook.getCategory() != null ? newBook.getCategory() : existingBook.getCategory());
+            existingBook.setIsbn(newBook.getIsbn() != null ? newBook.getIsbn() : existingBook.getIsbn());
+            existingBook.setPublisher(newBook.getPublisher() != null ? newBook.getPublisher() : existingBook.getPublisher());
+            existingBook.setPublishedDate(newBook.getPublishedDate() != null ? newBook.getPublishedDate() : existingBook.getPublishedDate());
+
+            // Update stockQuantity if a new value is provided
+            if (newBook.getStockQuantity() != null) {
+                existingBook.setStockQuantity(newBook.getStockQuantity());
+            }
+            // Update image if a new file is provided
+            if (imageFile != null && !imageFile.isEmpty()) {
+                byte[] imageBytes = imageFile.getBytes();
+                System.out.println("Updated Image Size: " + imageBytes.length + " bytes");
+                existingBook.setImage(imageBytes);
+            }
+
+            Book updatedBook = bookRepo.save(existingBook);
+            System.out.println("Book updated: " + updatedBook.getTitle() + " by " + updatedBook.getAuthor());
+            return updatedBook;
+        } else {
+            System.out.println("Book not found with ID: " + id);
             return null;
         }
     }
