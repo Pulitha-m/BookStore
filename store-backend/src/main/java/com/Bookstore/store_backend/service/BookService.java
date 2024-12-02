@@ -1,5 +1,6 @@
 package com.Bookstore.store_backend.service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.Bookstore.store_backend.entity.Book;
 import com.Bookstore.store_backend.repository.BookRepo;
 import com.Bookstore.store_backend.util.bookImageUtils;  // Import the ImageUtils class
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BookService {
@@ -51,5 +53,24 @@ public class BookService {
         }
 
         return books;
+    }
+
+
+    public Book getBookById(Long bookId) {
+        Optional<Book> optionalBook = bookRepo.findById(bookId);
+
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            System.out.println("Book retrieved: " + book.getTitle());
+
+            if (book.getImage() != null) {
+                String base64Image = Base64.getEncoder().encodeToString(book.getImage());
+                book.setImageBase64(base64Image);
+            }
+
+            return book;
+        } else {
+            return null;
+        }
     }
 }

@@ -58,4 +58,12 @@ public class BookController {
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
     }
+
+
+    @GetMapping("/{bookId}")
+    public Book getBookById(@PathVariable Long bookId){
+
+        return bookService.getBookById(bookId);
+
+    }
 }
