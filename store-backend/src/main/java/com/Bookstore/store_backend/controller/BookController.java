@@ -34,12 +34,11 @@ public class BookController {
             @RequestParam("stockQuantity") Integer stockQuantity,
             @RequestParam("image") MultipartFile imageFile) throws IOException {
 
-        // Create a new Book object from the form data
         Book book = Book.builder()
                 .title(title)
                 .author(author)
                 .publisher(publisher)
-                .publishedDate(LocalDate.parse(publishedDate))  // Assuming format is "yyyy-MM-dd"
+                .publishedDate(LocalDate.parse(publishedDate)) // Assuming "yyyy-MM-dd"
                 .isbn(isbn)
                 .price(price)
                 .description(description)
@@ -47,23 +46,57 @@ public class BookController {
                 .stockQuantity(stockQuantity)
                 .build();
 
-        // Save the book along with the image
         Book savedBook = bookService.saveBook(book, imageFile);
 
         return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
-
 
     @GetMapping
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
     }
 
-
     @GetMapping("/{bookId}")
-    public Book getBookById(@PathVariable Long bookId){
-
-        return bookService.getBookById(bookId);
-
+    public ResponseEntity<Book> getBookById(@PathVariable Long bookId) {
+        Book book = bookService.getBookById(bookId);
+        if (book != null) {
+            return ResponseEntity.ok(book);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
+    @PutMapping("/updateBook/{bookId}")
+    public ResponseEntity<Book> updateBook(
+            @PathVariable Long bookId,
+            @RequestParam("title") String title,
+            @RequestParam("author") String author,
+            @RequestParam("publisher") String publisher,
+            @RequestParam("publishedDate") String publishedDate,
+            @RequestParam("isbn") String isbn,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("description") String description,
+            @RequestParam("category") String category,
+            @RequestParam("stockQuantity") Integer stockQuantity,
+            @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException {
+
+        // Create a new book object with the updated details
+        Book updatedBook = Book.builder()
+                .title(title)
+                .author(author)
+                .publisher(publisher)
+                .publishedDate(LocalDate.parse(publishedDate)) // Assuming "yyyy-MM-dd"
+                .isbn(isbn)
+                .price(price)
+                .description(description)
+                .category(category)
+                .stockQuantity(stockQuantity)
+                .build();
+
+        // Pass the updated book and image file (if any) to the service method
+        Book savedBook = bookService.updateBook(updatedBook, bookId, imageFile);
+
+        return savedBook != null ? ResponseEntity.ok(savedBook) : ResponseEntity.notFound().build();
+    }
+
 }
